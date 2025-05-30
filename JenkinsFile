@@ -1,0 +1,48 @@
+pipeline {
+  agent any
+
+  environment {
+    // Optional: avoid interactive prompts from Playwright
+    CI = 'true'
+  }
+
+  tools {
+    nodejs 'NodeJS_18' // Must match your configured NodeJS tool in Jenkins
+  }
+
+  stages {
+    stage('Install Dependencies') {
+      steps {
+        sh 'npm ci'
+      }
+    }
+
+    stage('Install Playwright Browsers') {
+      steps {
+        sh 'npx playwright install --with-deps'
+      }
+    }
+
+    stage('Run Playwright Tests') {
+      steps {
+        sh 'npx playwright test'
+      }
+    }
+
+    stage('Publish Test Report') {
+      steps {
+        publishHTML(target: [
+          reportDir: 'playwright-report',
+          reportFiles: 'index.html',
+          reportName: 'Playwright Test Report'
+        ])
+      }
+    }
+  }
+
+  post {
+    always {
+      archiveArtifacts artifacts: 'test-results/**/*.*', allowEmptyArchive: true
+    }
+  }
+}
