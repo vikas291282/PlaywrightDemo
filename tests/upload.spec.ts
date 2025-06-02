@@ -1,20 +1,38 @@
-import { DealPage } from '../pages/DealPage';
 import { TotpPage } from '../pages/TotpPage';
+import { LoginPage } from '../pages/LoginPage';
 import { ImportPage } from '../pages/ImportPage';
 import { generateTOTP } from '../utils/totpHelper';
-import { test, expect } from './fixtures';
+import { test } from './fixtures';
 import dotenv from 'dotenv';
-import path from 'path';
-import { webkit, chromium, firefox } from 'playwright'
-import { request, Locator, } from '@playwright/test';
 import * as fs from 'fs';
+import path from 'path';
+import { DownloadPage } from '../pages/DownloadPage';
+import { expect } from '@playwright/test';
+import pdfParse from 'pdf-parse';
 
 // Load .env file
 dotenv.config({ path: path.resolve(__dirname, '..', '.env') });
 
 const secretKey = process.env.NEW_SECRET as string;
 
-test('Verify uploading', async ({ page, loginPage}) => {
+const downloadDir = path.resolve(__dirname, '../downloads');
+
+// Clean downloads folder before each test
+test.beforeEach(() => {
+  if (fs.existsSync(downloadDir)) {
+    fs.readdirSync(downloadDir).forEach(file => {
+      const filePath = path.join(downloadDir, file);
+      if (fs.lstatSync(filePath).isFile()) {
+        fs.unlinkSync(filePath);
+      }
+    });
+  } else {
+    fs.mkdirSync(downloadDir, { recursive: true });
+  }
+});
+
+test('Verify uploading', async ({ page }) => {
+    const loginPage = new LoginPage(page);
     const importPage = new ImportPage(page);
 
     await loginPage.goto();
@@ -38,7 +56,8 @@ test('Verify uploading', async ({ page, loginPage}) => {
     //await loginPage.logout();
 });
 
-test('Verify downloading', async ({ page, loginPage}) => {
+test('Verify downloading', async ({ page }) => {
+    const loginPage = new LoginPage(page);
     const importPage = new ImportPage(page);
 
     await loginPage.goto();
@@ -62,8 +81,10 @@ test('Verify downloading', async ({ page, loginPage}) => {
     //await loginPage.logout();
 });
 
-test.only('Verify PDF', async ({ page, loginPage}) => {
+test.only('Auto Download and Verify PDF', async ({ page }) => {
+    const loginPage = new LoginPage(page);
     const importPage = new ImportPage(page);
+    const downloadPage = new DownloadPage(page);   
 
     await loginPage.goto();
     await loginPage.login();
@@ -81,40 +102,17 @@ test.only('Verify PDF', async ({ page, loginPage}) => {
     
     await importPage.goto();
 
-    await importPage.verifyPDFFile();
+    await importPage.verifyPDFFile();   
 
-    //await loginPage.logout();
-});
+    const downloadPath = path.join(__dirname, '../downloads');
+    const filePath = await downloadPage.clickDownloadButtonAndSave(downloadPath);    
 
-test('Auto Download', async ({ page}) => {
-  const pdfUrl = 'https://informage--geuat--c.sandbox.vf.force.com/apex/CongaPreviewPage?quoteId=a0jWC0000056G5d%7EManualContract';
+    // Read the file into a buffer
+    const pdfBuffer = fs.readFileSync(filePath); // Must be a valid string path
 
-  await page.goto("https://informage--geuat--c.sandbox.vf.force.com/apex/CongaPreviewPage?quoteId=a0jWC0000056G5d%7EManualContract");
-  const username:Locator = await page.locator('#username');
-  const password:Locator = await page.locator('#password');
-  const loginButton:Locator = await page.locator('#Login');
+    // Parse the PDF
+    const pdfData = await pdfParse(pdfBuffer);
 
-  await username.fill("rajesh.c.gupta@informa.com.ge.geuat");
-  await password.fill("Admin$123456");
-  await loginButton.click();
-
-  const currentUrl = page.url();
-  console.log('📍 Current URL is:', currentUrl, {timeout:90000});
-
-  await page.waitForLoadState('domcontentloaded', {timeout:30000});
-
-  const context = await request.newContext();
-  const response = await context.get(currentUrl, {timeout:1200000});
-
-  await page.waitForLoadState('domcontentloaded', {timeout:30000});
-
-  if (response.ok()) {
-    const buffer = await response.body();
-    fs.writeFileSync('C:/Users/vikas.sharma/Downloads/dummy3338.pdf', buffer);
-    console.log('PDF downloaded successfully');
-  } else {
-    console.error(`Failed to download: ${response.status()}`);
-  }
-
-  await context.dispose();
+    // Use assertions as needed
+    expect(pdfData.text).toContain('Rohit');
 });

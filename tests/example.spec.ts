@@ -1,5 +1,6 @@
 // tests/example.spec.ts
-import { test, expect } from '@playwright/test';
+import { expect } from '@playwright/test';
+import { test } from './fixtures';
 
 test('homepage title should contain "Example Domain"', async ({ page }) => {
   await page.goto('https://example.com');

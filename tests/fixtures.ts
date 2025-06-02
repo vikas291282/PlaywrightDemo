@@ -1,14 +1,25 @@
-import { test as baseTest } from '@playwright/test';
-import { LoginPage } from '../pages/LoginPage';
+// tests/fixtures.ts
+import { test as base, chromium, BrowserContext, Page } from '@playwright/test';
 
 type MyFixtures = {
-  loginPage: LoginPage;
+  context: BrowserContext;
+  page: Page;
 };
 
-export const test = baseTest.extend<MyFixtures>({
-  loginPage: async ({ page }, use) => {
-    await use(new LoginPage(page));
+export const test = base.extend<MyFixtures>({
+  context: async ({}, use) => {
+    const browser = await chromium.launch({ headless: false });
+    const context = await browser.newContext({ acceptDownloads: true });
+    await use(context);
+    await context.close();
+    await browser.close();
+  },
+
+  page: async ({ context }, use) => {
+    const page = await context.newPage();
+    await use(page);
+    await page.close();
   },
 });
 
-export { expect } from '@playwright/test';
+export const expect = test.expect;
