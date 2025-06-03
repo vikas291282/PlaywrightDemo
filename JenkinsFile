@@ -2,8 +2,9 @@ pipeline {
   agent any
 
   environment {
-    // Optional: avoid interactive prompts from Playwright
     CI = 'true'
+    //PLAYWRIGHT_BROWSERS_PATH = '/opt/playwright-browsers' // Linux agents
+    PLAYWRIGHT_BROWSERS_PATH = 'C:\\playwright-browsers' // Use this on Windows agents
   }
 
   tools {
