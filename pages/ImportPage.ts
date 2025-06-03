@@ -7,6 +7,8 @@ dotenv.config({ path: path.resolve(__dirname, '..', '.env') });
 
 const contactPageURL = process.env.NEWPAGE_URL as string;
 
+const contactName = process.env.CONTACT_NAME as string;
+
 export class ImportPage {
   readonly page: Page;
   readonly importButton;
@@ -104,7 +106,7 @@ export class ImportPage {
     async verifyPDFFile() {
     await this.searchTextBar.click(); 
 
-    await this.searchTextBar.fill('Prateek Mittal');
+    await this.searchTextBar.fill(contactName);
 
     await this.page.waitForTimeout(2000);
     

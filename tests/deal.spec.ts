@@ -2,6 +2,7 @@ import { DealPage } from '../pages/DealPage';
 import { TotpPage } from '../pages/TotpPage';
 import { ContactPage } from '../pages/ContactPage';
 import { generateTOTP } from '../utils/totpHelper';
+import { LoginPage } from '../pages/LoginPage';
 import { test, expect } from './fixtures';
 import dotenv from 'dotenv';
 import path from 'path';
@@ -11,8 +12,9 @@ dotenv.config({ path: path.resolve(__dirname, '..', '.env') });
 
 const secretKey = process.env.SECRET as string;
 
-test.only('Enter the data with handle switch frame', async ({ page, loginPage}) => {
+test.only('Enter the data with handle switch frame', async ({ page }) => {
     const dealPage = new DealPage(page);
+    const loginPage = new LoginPage(page);
 
     await loginPage.goto();
     await loginPage.login();
@@ -37,9 +39,10 @@ test.only('Enter the data with handle switch frame', async ({ page, loginPage}) 
     await loginPage.logout();
 });
 
-test('Verify the data with handle switch window', async ({ page, loginPage}) => {
+test('Verify the data with handle switch window', async ({ page }) => {
     const dealPage = new DealPage(page);
     const contactPage = new ContactPage(page);
+    const loginPage = new LoginPage(page);
 
     await loginPage.goto();
     await loginPage.login();
