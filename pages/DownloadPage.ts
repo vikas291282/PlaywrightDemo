@@ -28,7 +28,7 @@ export class DownloadPage {
 
     const [download] = await Promise.all([
       newTab.waitForEvent('download'),
-      newTab.click('div > a.PrivateButtonLink__StyledButtonLink-szfcgf-1.fclGXi'), // Adjust selector
+      newTab.click('[data-test-id="file-preview-download-button"]'), // Adjust selector
     ]);
 
     const filename = download.suggestedFilename();
