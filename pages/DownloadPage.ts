@@ -10,7 +10,7 @@ export class DownloadPage {
   constructor(page: Page) {
     this.page = page;
     this.openNotesLink = page.locator('xpath=//div[@data-test-id="timeline-card"]//div[@role="button"]//*[@data-icon-name="Right"]');
-    this.attachedFile = page.locator('xpath=//a[@class="private-link uiLinkWithoutUnderline uiLinkDark"]');    
+    this.attachedFile = page.locator('xpath=//a[contains(@href, "/file-preview")]');    
   }
 
   async clickDownloadButtonAndSave(downloadDir: string): Promise<string> {
