@@ -19,10 +19,10 @@ export class DownloadPage {
     // Now interact with it       
     const [newTab] = await Promise.all([
     this.page.waitForEvent('popup'), // 👈 listen for new tab (popup)
-    this.attachedFile.click(), // 👈 the button that opens a new tab
+    this.attachedFile.click({ timeout: 5000 }), // 👈 the button that opens a new tab
     ]);
 
-    await newTab.waitForLoadState('domcontentloaded');
+    await newTab.waitForLoadState('domcontentloaded',{timeout:10000});
     
     await expect(newTab).toHaveTitle('File preview | 068dL000002msY6QAI-2.pdf');
 
