@@ -28,7 +28,7 @@ export class DownloadPage {
 
     const [download] = await Promise.all([
       newTab.waitForEvent('download'),
-      newTab.click('[data-test-id="file-preview-download-button"]'), // Adjust selector
+      newTab.click('[data-test-id="file-preview-download-button"]', {timeout:10000}), // Adjust selector
     ]);
 
     const filename = download.suggestedFilename();
